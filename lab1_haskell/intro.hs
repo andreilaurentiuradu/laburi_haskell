@@ -260,15 +260,45 @@ check5 = tests_ 5
 -}
 
 merge :: [Int] -> [Int] -> [Int]
-merge [] l = undefined
-merge l [] = undefined
-merge (x1:l1) (x2:l2) = undefined
+merge [] l = l
+merge l [] = l
 
+merge (x1:l1) (x2:l2)
+    | x1 < x2 = x1 : merge l1 (x2:l2)
+    | otherwise = x2 : merge (x1:l1) l2
+
+-- varianta 2
+-- merge (x1:l1) (x2:l2) = if x1 < x2 
+--     then x1 : merge l1 (x2:l2)
+--     else x2 : merge (x1:l1) l2 
 mergeSort :: [Int] -> [Int]
-mergeSort lst = undefined
-
+-- folosim pattern matching
+mergeSort [] = []
+mergeSort [x] = [x]
+mergeSort lst =
+    let 
+        half = quot (length lst) 2
+        fstHalf = take half lst
+        sndHalf = drop half lst
+    in  merge (mergeSort fstHalf) (mergeSort sndHalf)
+                
+-- (let*
+--             ((compute-half (λ (f lst) (f lst (quotient (length lst) 2))))
+--             (fst-half (λ (lst) (compute-half take lst)))
+--             (snd-half (λ (lst) (compute-half drop lst))))
+--         (cond
+--             [(null? L) '()]
+--             [(null? (cdr L)) L]
+--             [else (merge (merge-sort (fst-half L)) (merge-sort (snd-half L)))])))
 mergeSort2 :: [Int] -> [Int]
-mergeSort2 lst = undefined
+mergeSort2 [] = []
+mergeSort2 [x] = [x]
+mergeSort2 lst =
+    merge (mergeSort fstHalf) (mergeSort sndHalf)
+    where 
+        half = quot (length lst) 2
+        fstHalf = take half lst
+        sndHalf = drop half lst
 
 check6 :: TestData
 check6 = tests_ 6
@@ -300,10 +330,20 @@ check6 = tests_ 6
 -}
 
 playerWins :: Int -> Bool
-playerWins candies = undefined
+playerWins candies = 
+    let player candies = (candies > 0) && 
+            ((not (opponent (candies - 1))) || (not (opponent (candies - 2))))
+        opponent candies = (candies > 0) && 
+            ((not (player (candies - 2))) || (not (player (candies - 3))))
+    in player candies
 
 playerWins2 :: Int -> Bool
-playerWins2 candies = undefined
+playerWins2 candies = player candies
+    where
+        player candies = (candies > 0) && 
+            ((not (opponent (candies - 1))) || (not (opponent (candies - 2))))
+        opponent candies = (candies > 0) && 
+            ((not (player (candies - 2))) || (not (player (candies - 3))))
 
 check7 :: TestData
 check7 = tests_ 7
