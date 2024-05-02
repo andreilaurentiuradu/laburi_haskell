@@ -132,7 +132,21 @@ check2 = tests_ 2
 -}
 
 removeDuplicatesLeft :: (Eq a) => [a] -> [a]
-removeDuplicatesLeft l = undefined
+removeDuplicatesLeft l = reverse (foldl 
+                                    (\acc x -> if elem x acc 
+                                                then acc
+                                                else x : acc)
+                                    []
+                                    l)
+
+{- varianta 2
+    removeDuplicatesLeft l = (foldl 
+                                    (\acc x -> if elem x acc 
+                                                then acc
+                                                else acc ++ [x])
+                                    []
+                                    l)
+-}
 
 -- Verificare: check3
 check3 :: TestData
@@ -151,7 +165,12 @@ check3 = tests_ 3
 -}
 
 removeDuplicatesRight :: (Eq a) => [a] -> [a]
-removeDuplicatesRight l = undefined
+removeDuplicatesRight l = (foldr
+                            (\x acc -> if elem x acc 
+                                        then acc
+                                        else x : acc)
+                            []
+                            l)
 
 -- Verificare: check4
 check4 :: TestData
@@ -182,13 +201,31 @@ check4 = tests_ 4
 computeLength :: ((Double, Double), (Double, Double)) 
             -> (((Double, Double), (Double, Double)) -> (Double, Double)) 
             -> (((Double, Double), (Double, Double)) -> (Double, Double)) -> Double
-computeLength getLineSegment getStartPoint getEndPoint = undefined
+computeLength getLineSegment getStartPoint getEndPoint = 
+    let segment = getLineSegment
+        start = getStartPoint segment
+        stop = getEndPoint segment
+        x1 = fst start
+        x2 = fst stop
+        y1 = snd start
+        y2 = snd stop
+        in sqrt ((x1 - x2) ** 2 + (y1 - y2) ** 2) 
 
 -- cu where
 computeLength2 :: ((Double, Double), (Double, Double)) 
             -> (((Double, Double), (Double, Double)) -> (Double, Double)) 
             -> (((Double, Double), (Double, Double)) -> (Double, Double)) -> Double
-computeLength2 getLineSegment getStartPoint getEndPoint = undefined
+computeLength2 getLineSegment getStartPoint getEndPoint =
+    sqrt ((x1 - x2) ** 2 + (y1 - y2) ** 2)
+    where
+        segment = getLineSegment
+        start = getStartPoint segment
+        stop = getEndPoint segment
+        x1 = fst start
+        x2 = fst stop
+        y1 = snd start
+        y2 = snd stop
+
 
 -- Verificare: check5
 check5 :: TestData
