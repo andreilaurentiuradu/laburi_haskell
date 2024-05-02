@@ -15,10 +15,10 @@ import Data.Char
 -}
 
 findStringsLongerThanTenChars :: [String] -> [String]
-findStringsLongerThanTenChars l = undefined
+findStringsLongerThanTenChars l = filter (\word -> length word >= 10) l 
 
 findStringsLongerThanTenChars2 :: [String] -> [String]
-findStringsLongerThanTenChars2 l = undefined
+findStringsLongerThanTenChars2 l = [word | word <- l, length word >= 10 ]
 
 -- Verificare: check1
 check1 :: TestData
@@ -36,10 +36,10 @@ check1 = tests_ 1
 -}
 
 buildPairsStringLength :: [String] -> [(String, Int)]
-buildPairsStringLength l = undefined
+buildPairsStringLength l = map (\s -> (s, length s)) l
 
 buildPairsStringLength2 :: [String] -> [(String, Int)]
-buildPairsStringLength2 l = undefined
+buildPairsStringLength2 l = [(x, length x) | x <- l]
 
 -- Verificare: check2
 check2 :: TestData
@@ -57,16 +57,16 @@ check2 = tests_ 2
 -}
 
 setIntersection :: Eq a => [a] -> [a] -> [a]
-setIntersection a b = undefined
+setIntersection a b = [x | x <- a, elem x b]
 
 setDiff :: Eq a => [a] -> [a] -> [a]
-setDiff a b = undefined
+setDiff a b = [x | x <- a, not (elem x b)]
 
 cartProduct :: [a] -> [b] -> [(a, b)]
-cartProduct a b = undefined
+cartProduct a b = [(x, y) | x <- a, y <- b]
 
 setUnion :: Eq a => [a] -> [a] -> [a]
-setUnion a b = undefined
+setUnion a b = (setDiff a b) ++ (setDiff b a) ++ (setIntersection a b)
 
 -- Verificare: check3
 check3 :: TestData
@@ -118,7 +118,9 @@ check4 = tests_ 4
  -}
 
 infiniteApply :: (Double -> Double) -> Double -> [Double]
-infiniteApply f x0 = undefined
+infiniteApply f x0 = x0 : infiniteApply f (f x0)
+-- infiniteApply f x0 = iterate f x0
+
 
 -- Verificare: check5
 check5 :: TestData
@@ -144,11 +146,11 @@ check5 = tests_ 5
 
 f :: Double -> Double
 -- f x = 36 - x ** 2 - de tradus această secvență în point-free
-f = undefined
+f = (36 -) . (** 2)
 
 df :: Double -> Double
 -- df x = -2 * x - de tradus această secvență în point-free
-df = undefined
+df = (* (-2))
 
 -- Verificare: check6
 check6 :: TestData
@@ -178,7 +180,8 @@ check6 = tests_ 6
     la exercițiul anterior)
  -}
 
-newtonRaphson x g dg = undefined
+--  x_new = x_old - f(x_old) / df(x_old)
+newtonRaphson x g dg = iterate (\x -> x - (g x) / (dg x)) x
 
 -- Verificare: check7
 check7 :: TestData
@@ -213,8 +216,19 @@ check7 = tests_ 7
     Hint 2: zip, dropWhile, abs
  -}
 
-newtonRaphsonSolve :: Double -> Double -> (Double -> Double) -> (Double ->Double) -> Double
-newtonRaphsonSolve x_old atol g dg = undefined
+-- |x_new - x_old| <= atol
+newtonRaphsonSolve :: Double -> Double -> (Double -> Double) -> (Double -> Double) -> Double
+-- m-a rupt
+newtonRaphsonSolve x_old atol g dg = result
+    where
+        -- Generăm fluxul de aproximări succesive folosind metoda Newton-Raphson
+        nr = newtonRaphson x_old g dg
+        
+        -- Construim o listă de perechi de aproximări consecutive
+        vals = zip (tail nr) nr
+        
+        -- Selectăm prima aproximare a cărei diferență absolută față de cea anterioară este mai mică sau egală cu toleranța absolută
+        (_, result) : _ = dropWhile (\(x, y) -> abs(x - y) > atol) vals
 
 -- Verificare: check8
 check8 :: TestData
@@ -242,7 +256,7 @@ check8 = tests_ 8
  -}
 
 babylonianMethod :: Double -> Double -> Double -> Double
-babylonianMethod a x_old atol = undefined
+babylonianMethod a x_old atol = newtonRaphsonSolve x_old atol (\x->x**2-a) (\x->2*x)
 
 -- Verificare: check9
 check9 :: TestData
